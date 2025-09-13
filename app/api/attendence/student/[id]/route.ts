@@ -1,25 +1,31 @@
 import { prisma } from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } } 
-) {
+interface Context {
+  params: { id: string };
+}
+
+export async function GET(req: Request, context: Context) {
+  const { id } = context.params;
+
+  if (!id) {
+    return NextResponse.json({ error: "Missing student ID" }, { status: 400 });
+  }
+
   try {
-    const { id } = context.params;
-
     const attendance = await prisma.attendence.findMany({
       where: {
-        attendenceId: id,
+        attendenceId: id, 
       },
     });
 
+    if (!attendance || attendance.length === 0) {
+      return NextResponse.json({ error: "No attendance found" }, { status: 404 });
+    }
+
     return NextResponse.json(attendance);
-  } catch (error) {
-    console.error("Error fetching attendance:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch attendance" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("Error fetching attendance:", err);
+    return NextResponse.json({ error: "Failed to fetch attendance" }, { status: 500 });
   }
 }
