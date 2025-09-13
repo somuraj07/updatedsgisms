@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { QrCode, X, RefreshCw, Users, CalendarCheck } from "lucide-react";
+import {
+  QrCode,
+  X,
+  RefreshCw,
+  Users,
+  Menu,
+  CalendarCheck,
+} from "lucide-react";
 import Webcam from "react-webcam";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -22,7 +29,10 @@ export default function AdminPage() {
   const [showCamera, setShowCamera] = useState(false);
   const [otherReason, setOtherReason] = useState("");
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
-  const [qrFacingMode, setQrFacingMode] = useState<"user" | "environment">("environment");
+  const [qrFacingMode, setQrFacingMode] = useState<"user" | "environment">(
+    "environment"
+  );
+  const [open, setOpen] = useState(false);
 
   const webcamRef = useRef<Webcam>(null);
   const router = useRouter();
@@ -111,7 +121,10 @@ export default function AdminPage() {
         const newComplaint = await res.json();
         setSelectedStudent((prev: any) => ({
           ...prev,
-          complaintsAsStudent: [newComplaint, ...(prev.complaintsAsStudent || [])],
+          complaintsAsStudent: [
+            newComplaint,
+            ...(prev.complaintsAsStudent || []),
+          ],
         }));
       } else {
         toast.error("Error submitting complaint please contact principal ❌");
@@ -122,24 +135,66 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white p-4 sm:p-6">
-      {/* Floating Buttons */}
-      <div className="fixed top-4 right-4 flex flex-col gap-2 z-50">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white p-4 sm:p-6 relative">
+      {/* Hamburger Icon */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="fixed top-4 right-4 z-50 bg-purple-600 p-2 rounded-lg text-white shadow-md sm:hidden"
+      >
+        {open ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Right-side menu */}
+      <div
+        className={`fixed top-16 right-4 bg-purple-200 text-purple-900 shadow-lg flex flex-col py-4 px-4 gap-3 rounded-xl transform transition-transform duration-300 z-40
+        ${open ? "translate-x-0" : "translate-x-56"}`}
+        style={{ minWidth: "180px" }}
+      >
         <button
-          onClick={() => router.push("/users")}
-          className="flex items-center gap-2 justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow hover:from-purple-700 hover:to-purple-500"
+          onClick={() => {
+            router.push("/users");
+            setOpen(false);
+          }}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
         >
-          <Users size={16} /> Details
+          <Users size={20} /> Details
         </button>
+
         <button
-          onClick={() => router.push("/attendence")}
-          className="flex items-center gap-2 justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow hover:from-purple-700 hover:to-purple-500"
+          onClick={() => {
+            router.push("/attendence");
+            setOpen(false);
+          }}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
         >
-          <CalendarCheck size={16} /> Attendence
+          <CalendarCheck size={20} /> Attendance
+        </button>
+
+        <button
+          onClick={() => {
+            router.push("/timetabel");
+            setOpen(false);
+          }}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
+        >
+          <QrCode size={20} /> Timetable
         </button>
       </div>
 
-      <div className="max-w-xl mx-auto space-y-6 text-black">
+      {/* Overlay with blur */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* Page content */}
+      <div
+        className={`max-w-xl mx-auto space-y-6 text-black transition-all duration-300 ${
+          open ? "filter blur-sm" : ""
+        }`}
+      >
         <h1 className="text-2xl sm:text-3xl font-bold text-purple-700 text-center">
           Admin Dashboard
         </h1>
@@ -192,7 +247,9 @@ export default function AdminPage() {
               <div className="absolute top-2 right-2 flex gap-2">
                 <button
                   onClick={() =>
-                    setQrFacingMode((prev) => (prev === "user" ? "environment" : "user"))
+                    setQrFacingMode(
+                      (prev) => (prev === "user" ? "environment" : "user")
+                    )
                   }
                   className="p-2 bg-yellow-500 rounded-full text-white"
                 >
@@ -214,9 +271,15 @@ export default function AdminPage() {
           <div className="rounded-xl border p-4 sm:p-6 bg-white shadow-lg space-y-6">
             <h2 className="font-semibold text-purple-700">Selected Student</h2>
             <div className="space-y-1">
-              <p className="text-sm font-medium flex items-center gap-1">👤 {selectedStudent.name}</p>
-              <p className="text-sm text-gray-600 flex items-center gap-1">📧 {selectedStudent.email}</p>
-              <p className="text-sm text-gray-600 flex items-center gap-1">🏫 {selectedStudent.department}</p>
+              <p className="text-sm font-medium flex items-center gap-1">
+                👤 {selectedStudent.name}
+              </p>
+              <p className="text-sm text-gray-600 flex items-center gap-1">
+                📧 {selectedStudent.email}
+              </p>
+              <p className="text-sm text-gray-600 flex items-center gap-1">
+                🏫 {selectedStudent.department}
+              </p>
             </div>
 
             {/* Complaint Form */}

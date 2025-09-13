@@ -14,18 +14,18 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(cuid())
-  email     String      @unique
-  password  String
-  name      String
+  id         String   @id @default(cuid())
+  email      String   @unique
+  password   String
+  name       String
   department String
-  role      Role        @default(STUDENT)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  role       Role     @default(STUDENT)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relations
-  complaintsAsStudent   Complaint[]   
-  attendenceAsStudent   Attendence[]    
+  complaintsAsStudent Complaint[]
+  attendenceAsStudent Attendence[]
 }
 
 model Complaint {
@@ -36,18 +36,29 @@ model Complaint {
 
   // Student info
   studentId String
-  student   User @relation(fields: [studentId], references: [id])
+  student   User   @relation(fields: [studentId], references: [id])
 }
-
 
 model Attendence {
-    id        String   @id @default(cuid())
-    monthh  String
-    percentage String
-    attendenceId String
-    attendence  User @relation(fields: [attendenceId], references: [id])
-
+  id           String @id @default(cuid())
+  monthh       String
+  percentage   String
+  attendenceId String
+  attendence   User   @relation(fields: [attendenceId], references: [id])
 }
+
+model Timetabel {
+  id         Int      @id @default(autoincrement())
+  department String
+  year       String
+  semsister  String
+  period     String
+  createdAt  DateTime @default(now())
+
+  @@unique([department, year, semsister])
+}
+
+
 
 enum Role {
   STUDENT

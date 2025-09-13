@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useAuth } from "@/app/context/AuthContext";
 import { User, Mail, Building2, CheckCircle } from "lucide-react";
+import ViewTimetablePage from "@/app/time/page";
 
 type Attendance = {
   id: string;
@@ -86,9 +87,9 @@ export default function StudentPage() {
   const totalPercentage =
     attendance.length > 0
       ? (
-          attendance.reduce((acc, curr) => acc + parseFloat(curr.percentage), 0) /
-          attendance.length
-        ).toFixed(2)
+        attendance.reduce((acc, curr) => acc + parseFloat(curr.percentage), 0) /
+        attendance.length
+      ).toFixed(2)
       : "N/A";
 
   return (
@@ -174,6 +175,12 @@ export default function StudentPage() {
           ) : (
             <p className="text-gray-700 text-center text-sm">No complaints yet 🎉</p>
           )}
+        </div>
+        <div className="mt-6 bg-white p-4 rounded-2xl shadow-sm">
+          <h2 className="font-semibold text-purple-700 mb-2 text-center">
+            Class Timetable
+          </h2>
+          <ViewTimetablePage />
         </div>
       </div>
     </div>
