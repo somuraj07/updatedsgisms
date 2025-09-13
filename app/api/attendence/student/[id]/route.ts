@@ -1,12 +1,12 @@
+// app/api/attendence/student/[id]/route.ts
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-interface Context {
-  params: { id: string };
-}
-
-export async function GET(req: Request, context: Context) {
-  const { id } = context.params;
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } } // must be inline
+) {
+  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: "Missing student ID" }, { status: 400 });
@@ -14,9 +14,7 @@ export async function GET(req: Request, context: Context) {
 
   try {
     const attendance = await prisma.attendence.findMany({
-      where: {
-        attendenceId: id, 
-      },
+      where: { attendenceId: id },
     });
 
     if (!attendance || attendance.length === 0) {
@@ -26,6 +24,6 @@ export async function GET(req: Request, context: Context) {
     return NextResponse.json(attendance);
   } catch (err) {
     console.error("Error fetching attendance:", err);
-    return NextResponse.json({ error: "Failed to fetch attendance" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
