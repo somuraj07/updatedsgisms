@@ -2,17 +2,19 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, context: { params: Record<string, string> }) {
-  const { params } = context;
-  const id = params.id;
-
-  if (!id) {
-    return NextResponse.json({ error: "Missing student ID" }, { status: 400 });
-  }
-
+export async function GET(req: Request) {
   try {
+    // Extract the student ID from the URL
+    const url = new URL(req.url);
+    const segments = url.pathname.split("/");
+    const id = segments[segments.length - 1]; // last segment is the dynamic [id]
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing student ID" }, { status: 400 });
+    }
+
     const attendance = await prisma.attendence.findMany({
-      where: { attendenceId: id }, // make sure the type matches your Prisma schema
+      where: { attendenceId: id },
     });
 
     if (!attendance || attendance.length === 0) {
