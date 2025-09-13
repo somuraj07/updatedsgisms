@@ -2,11 +2,9 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } } // must be inline
-) {
-  const { id } = params;
+export async function GET(req: Request, context: { params: Record<string, string> }) {
+  const { params } = context;
+  const id = params.id;
 
   if (!id) {
     return NextResponse.json({ error: "Missing student ID" }, { status: 400 });
@@ -14,7 +12,7 @@ export async function GET(
 
   try {
     const attendance = await prisma.attendence.findMany({
-      where: { attendenceId: id },
+      where: { attendenceId: id }, // make sure the type matches your Prisma schema
     });
 
     if (!attendance || attendance.length === 0) {
