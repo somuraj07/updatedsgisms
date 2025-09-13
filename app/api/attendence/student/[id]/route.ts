@@ -3,17 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } } 
 ) {
   try {
-    const studentId = params.id;
+    const { id } = context.params;
 
-    // ✅ Fetch all attendance records for this student
     const attendance = await prisma.attendence.findMany({
       where: {
-        attendenceId: studentId, // matches your schema
+        attendenceId: id,
       },
-
     });
 
     return NextResponse.json(attendance);
