@@ -58,48 +58,49 @@ export default function ViewTimetablePage() {
           📅 Class Timetable
         </h1>
 
-        {/* Filters in one row */}
-        <div className="flex justify-center gap-2 flex-nowrap overflow-x-auto">
-          <select
-            className="border border-purple-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-purple-400"
-            value={filters.department}
-            onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-          >
-            <option value="">Dept</option>
-            {departments.map((dep) => (
-              <option key={dep} value={dep}>{dep}</option>
-            ))}
-          </select>
+        
+<div className="flex flex-wrap justify-center items-center gap-2 mt-2">
+  <select
+    className="border border-purple-300 rounded-lg px-2 py-1 text-sm flex-1 min-w-[80px] focus:ring-2 focus:ring-purple-400"
+    value={filters.department}
+    onChange={(e) => setFilters({ ...filters, department: e.target.value })}
+  >
+    <option value="">Dept</option>
+    {departments.map((dep) => (
+      <option key={dep} value={dep}>{dep}</option>
+    ))}
+  </select>
 
-          <select
-            className="border border-purple-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-purple-400"
-            value={filters.year}
-            onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-          >
-            <option value="">Year</option>
-            {years.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+  <select
+    className="border border-purple-300 rounded-lg px-2 py-1 text-sm flex-1 min-w-[70px] focus:ring-2 focus:ring-purple-400"
+    value={filters.year}
+    onChange={(e) => setFilters({ ...filters, year: e.target.value })}
+  >
+    <option value="">Year</option>
+    {years.map((y) => (
+      <option key={y} value={y}>{y}</option>
+    ))}
+  </select>
 
-          <select
-            className="border border-purple-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-purple-400"
-            value={filters.semsister}
-            onChange={(e) => setFilters({ ...filters, semsister: e.target.value })}
-          >
-            <option value="">Sem</option>
-            {semesters.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+  <select
+    className="border border-purple-300 rounded-lg px-2 py-1 text-sm flex-1 min-w-[70px] focus:ring-2 focus:ring-purple-400"
+    value={filters.semsister}
+    onChange={(e) => setFilters({ ...filters, semsister: e.target.value })}
+  >
+    <option value="">Sem</option>
+    {semesters.map((s) => (
+      <option key={s} value={s}>{s}</option>
+    ))}
+  </select>
 
-          <button
-            onClick={handleFetch}
-            className="bg-purple-600 hover:bg-purple-700 transition text-white text-sm font-semibold px-3 py-1 rounded shadow-md"
-          >
-            Show
-          </button>
-        </div>
+  <button
+    onClick={handleFetch}
+    className="bg-purple-600 hover:bg-purple-700 transition text-white text-xs font-medium px-3 py-1 rounded shadow-md"
+  >
+    Show
+  </button>
+</div>
+
 
 
         {/* Timetable */}
