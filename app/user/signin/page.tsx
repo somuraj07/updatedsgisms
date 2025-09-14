@@ -36,7 +36,13 @@ export default function SigninPage() {
         router.push("/admin");
       } else if (data.role === "STUDENT") {
         router.push("/student");
-      } else {
+      } else if (data.role === "SUPER") {
+        router.push("/super");
+      } else if (data.role === "WARDEN") {
+        router.push("/warden");
+      } else if (data.role === "WATCHMAN") {
+        router.push("/watchman");
+      }  else {
         toast.error("❌ Unknown role");
       }
 
