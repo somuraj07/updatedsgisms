@@ -2,15 +2,23 @@ import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 // GET all hostel submissions for a student
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const parts = url.pathname.split("/"); 
+    const id = parts[parts.length - 1]; 
+
     const hostels = await prisma.hostel.findMany({
-      where: { hostelId: params.id }, // link to User
+      where: { hostelId: id }, 
     });
+
     return NextResponse.json(hostels);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to fetch hostel submissions" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch hostel submissions" },
+      { status: 500 }
+    );
   }
 }
 
