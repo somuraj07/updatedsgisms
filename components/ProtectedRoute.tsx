@@ -10,7 +10,7 @@ export function ProtectedRoute({
   roles,
 }: {
   children: React.ReactNode;
-  roles: ("STUDENT" | "ADMIN")[];
+  roles: ("STUDENT" | "ADMIN" | "WARDEN" | "WATCHMAN" | "SUPER")[];
 }) {
   const { user } = useAuth();
   const router = useRouter();
@@ -19,7 +19,7 @@ export function ProtectedRoute({
     if (!user) {
       router.replace("/user/signin");
     } else if (!roles.includes(user.role)) {
-      router.replace("/unauthorized");
+      router.replace("/unauthorized");      
     }
   }, [user, roles, router]);
 

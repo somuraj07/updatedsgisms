@@ -7,7 +7,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 type User = {
   id: string;
   email: string;
-  role: "STUDENT" | "ADMIN";
+  role: "STUDENT" | "ADMIN" | "WARDEN" | "WATCHMAN" |"SUPER";
   name?: string;
 } | null;
 

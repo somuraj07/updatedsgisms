@@ -169,7 +169,6 @@ export default function AdminPage() {
         >
           <CalendarCheck size={20} /> Attendance
         </button>
-
         <button
           onClick={() => {
             router.push("/timetabel");
@@ -177,7 +176,35 @@ export default function AdminPage() {
           }}
           className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
         >
-          <QrCode size={20} /> Timetable
+          <CalendarCheck size={20} /> timetabel
+        </button>
+        <button
+          onClick={() => {
+            router.push("/warden");
+            setOpen(false);
+          }}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
+        >
+          <CalendarCheck size={20} /> warden
+        </button>
+        <button
+          onClick={() => {
+            router.push("/watchman");
+            setOpen(false);
+          }}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
+        >
+          <CalendarCheck size={20} /> watchman
+        </button>
+
+        <button
+          onClick={() => {
+            router.push("/allDetails");
+            setOpen(false);
+          }}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
+        >
+          <QrCode size={20} /> hostel details
         </button>
       </div>
 

@@ -19,6 +19,8 @@ model User {
   password   String
   name       String
   department String
+  gender     String
+  type       String
   role       Role     @default(STUDENT)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -26,6 +28,7 @@ model User {
   // Relations
   complaintsAsStudent Complaint[]
   attendenceAsStudent Attendence[]
+  hostelAsStudent     Hostel[]
 }
 
 model Complaint {
@@ -58,9 +61,25 @@ model Timetabel {
   @@unique([department, year, semsister])
 }
 
-
+model Hostel {
+  id          Int      @id @default(autoincrement())
+  reason      String
+  village     String
+  number      String
+  photo       String
+  duration    String
+  submit      Boolean  @default(false)
+  returned    Boolean  @default(false)
+  comeoutTime DateTime @default(now())
+  comeinTime  DateTime @default(now())
+  hostelId    String
+  hostel      User     @relation(fields: [hostelId], references: [id])
+}
 
 enum Role {
   STUDENT
   ADMIN
+  WARDEN
+  WATCHMAN
+  SUPER
 }
