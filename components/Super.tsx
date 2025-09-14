@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { QrCode, X } from "lucide-react";
+import { QrCode, X, Trash2, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 
 const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false });
@@ -21,7 +21,6 @@ interface User {
   name: string;
   department: string;
   complaintsAsStudent: Complaint[];
-  attendancePercentage?: number;
 }
 
 interface HostelSubmission {
@@ -138,40 +137,39 @@ export default function AdminHostelPage() {
     filterSubmit === "all" ? true : s.submit === filterSubmit
   );
 
-  /*** SCAN HANDLER ***/
-  const handleScan = async (result: string | null) => {
-    if (!result) return;
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
+  /*** DELETE COMPLAINT HANDLER ***/
+  const handleDeleteComplaint = async (userId: string, complaintId: string) => {
     try {
-      // Show toast
-      toast.success(`Fetched attendance for ${result}`);
+      console.log("Deleting complaint:", complaintId, "for user:", userId);
+      const res = await fetch(`/api/complaint/delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ complaintId }),
+      });
 
-      // Update search for filtering
-      setSearch(result);
-
-      // Find user and fetch attendance
-      const student = users.find((u) => u.email === result);
-      if (student) {
-        const resAttendance = await fetch(
-          `/api/attendence/student/${student.id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const attendance = resAttendance.ok ? await resAttendance.json() : 0;
-
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === student.id
-              ? { ...u, attendancePercentage: attendance }
-              : u
-          )
-        );
+      if (!res.ok) {
+        toast.error("Failed to delete complaint");
+        return;
       }
 
-      setScanning(false);
+      // Update local state
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId
+            ? {
+                ...u,
+                complaintsAsStudent: u.complaintsAsStudent.filter(
+                  (c) => c.id !== complaintId
+                ),
+              }
+            : u
+        )
+      );
+
+      toast.success("Complaint deleted");
     } catch (err) {
-      toast.error("Failed to fetch attendance");
+      console.error("Error deleting complaint:", err);
+      toast.error("Error deleting complaint");
     }
   };
 
@@ -277,7 +275,7 @@ export default function AdminHostelPage() {
                 <QrReader
                   delay={200}
                   onError={(err) => console.error(err)}
-                  onScan={handleScan}
+                  onScan={(data) => console.log("Scanned:", data)}
                   style={{ width: "100%", height: "100%" }}
                 />
               </div>
@@ -294,7 +292,6 @@ export default function AdminHostelPage() {
                   <th className="p-2 text-left">Email</th>
                   <th className="p-2 text-left">Department</th>
                   <th className="p-2 text-left">Complaints</th>
-                  <th className="p-2 text-left">Attendance %</th>
                 </tr>
               </thead>
               <tbody>
@@ -308,33 +305,64 @@ export default function AdminHostelPage() {
                       <td className="p-2 break-words">{u.email}</td>
                       <td className="p-2">{u.department}</td>
                       <td className="p-2">
-                        {u.complaintsAsStudent.length > 0 ? (
-                          <ul className="list-disc ml-5">
-                            {u.complaintsAsStudent
-                              .filter((c) => isInRange(c.createdAt))
-                              .map((c) => (
-                                <li key={c.id}>
-                                  <span className="font-medium">{c.reason}</span>{" "}
-                                  ({new Date(c.createdAt).toLocaleDateString()}{" "}
-                                  {new Date(c.createdAt).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    second: "2-digit",
-                                  })})
-                                </li>
-                              ))}
-                          </ul>
-                        ) : (
-                          <span className="text-gray-500">No complaints 🎉</span>
-                        )}
-                      </td>
-                      <td className="p-2">{u.attendancePercentage ?? "N/A"}%</td>
+  {u.complaintsAsStudent.length > 0 ? (
+    <ul className="list-disc ml-5">
+      {u.complaintsAsStudent
+        .filter((c) => isInRange(c.createdAt))
+        .map((c) => (
+          <li key={c.id} className="flex items-center gap-2">
+            <span className="font-medium">{c.reason}</span>{" "}
+            ({new Date(c.createdAt).toLocaleDateString()})
+            
+            {/* Delete button */}
+            <button
+              onClick={async () => {
+                console.log("🗑️ Trying to delete complaint:", c.id);
+                const res = await fetch("/api/complaint/delete", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ complaintId: c.id }),
+                });
+
+                if (res.ok) {
+                  toast.success("Complaint deleted ✅");
+
+                  // Update UI after delete
+                  setUsers((prev) =>
+                    prev.map((user) =>
+                      user.id === u.id
+                        ? {
+                            ...user,
+                            complaintsAsStudent: user.complaintsAsStudent.filter(
+                              (comp) => comp.id !== c.id
+                            ),
+                          }
+                        : user
+                    )
+                  );
+                } else {
+                  const err = await res.json();
+                  toast.error("Delete failed ❌: " + err.error);
+                }
+              }}
+              className="text-red-600 hover:text-red-800 ml-2"
+            >
+              <Trash />
+            </button>
+          </li>
+        ))}
+    </ul>
+  ) : (
+    <span className="text-gray-500">No complaints 🎉</span>
+  )}
+</td>
+
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={4}
                       className="p-4 text-center text-gray-500 italic"
                     >
                       No users found
@@ -357,7 +385,9 @@ export default function AdminHostelPage() {
           <div className="mb-4 flex justify-center gap-4 flex-wrap">
             <button
               className={`px-4 py-2 rounded ${
-                filterSubmit === "all" ? "bg-orange-600 text-white" : "bg-gray-200"
+                filterSubmit === "all"
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-200"
               }`}
               onClick={() => setFilterSubmit("all")}
             >
@@ -365,7 +395,9 @@ export default function AdminHostelPage() {
             </button>
             <button
               className={`px-4 py-2 rounded ${
-                filterSubmit === true ? "bg-orange-600 text-white" : "bg-gray-200"
+                filterSubmit === true
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-200"
               }`}
               onClick={() => setFilterSubmit(true)}
             >
@@ -373,7 +405,9 @@ export default function AdminHostelPage() {
             </button>
             <button
               className={`px-4 py-2 rounded ${
-                filterSubmit === false ? "bg-orange-600 text-white" : "bg-gray-200"
+                filterSubmit === false
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-200"
               }`}
               onClick={() => setFilterSubmit(false)}
             >
@@ -384,7 +418,9 @@ export default function AdminHostelPage() {
           {loadingHostel ? (
             <p className="text-center mt-8">Loading...</p>
           ) : filteredSubmissions.length === 0 ? (
-            <p className="text-center text-gray-600 mt-8">No submissions to display</p>
+            <p className="text-center text-gray-600 mt-8">
+              No submissions to display
+            </p>
           ) : (
             <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-md">
               <table className="min-w-full text-left text-sm text-gray-700">
@@ -415,23 +451,31 @@ export default function AdminHostelPage() {
                       <td className="px-4 py-2">{s.number}</td>
                       <td className="px-4 py-2">
                         {s.submit ? (
-                          <span className="text-green-600 font-semibold">Yes</span>
+                          <span className="text-green-600 font-semibold">
+                            Yes
+                          </span>
                         ) : (
                           <span className="text-red-600 font-semibold">No</span>
                         )}
                       </td>
                       <td className="px-4 py-2">
                         {s.returned ? (
-                          <span className="text-green-600 font-semibold">Yes</span>
+                          <span className="text-green-600 font-semibold">
+                            Yes
+                          </span>
                         ) : (
                           <span className="text-red-600 font-semibold">No</span>
                         )}
                       </td>
                       <td className="px-4 py-2">
-                        {s.comeoutTime ? new Date(s.comeoutTime).toLocaleString() : "-"}
+                        {s.comeoutTime
+                          ? new Date(s.comeoutTime).toLocaleString()
+                          : "-"}
                       </td>
                       <td className="px-4 py-2">
-                        {s.comeinTime ? new Date(s.comeinTime).toLocaleString() : "-"}
+                        {s.comeinTime
+                          ? new Date(s.comeinTime).toLocaleString()
+                          : "-"}
                       </td>
                     </tr>
                   ))}
