@@ -178,7 +178,6 @@ export default function AdminPage() {
         >
           <CalendarCheck size={20} /> timetabel
         </button>
-        
       </div>
 
       {/* Overlay with blur */}
@@ -221,19 +220,22 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* QR Scanner */}
+        {/* ✅ QR Scanner with Toggle Button */}
         <div className="rounded-xl border p-4 bg-white shadow-sm">
           <h2 className="font-semibold text-purple-700 mb-2 text-sm sm:text-base">
             QR Scanner
           </h2>
-          {!scanning ? (
-            <button
-              onClick={() => setScanning(true)}
-              className="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 gap-2 text-sm"
-            >
-              <QrCode size={20} /> Start Scanning
-            </button>
-          ) : (
+
+          {/* Toggle Button */}
+          <button
+            onClick={() => setScanning((prev) => !prev)}
+            className="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 gap-2 text-sm mb-3"
+          >
+            {scanning ? <X size={20} /> : <QrCode size={20} />}
+            {scanning ? "Close Scanner" : "Open Scanner"}
+          </button>
+
+          {scanning && (
             <div className="relative">
               <div className="w-full h-100 border rounded-lg overflow-hidden">
                 <QrReader
@@ -254,12 +256,6 @@ export default function AdminPage() {
                   className="p-2 bg-yellow-500 rounded-full text-white"
                 >
                   <RefreshCw size={18} />
-                </button>
-                <button
-                  onClick={() => setScanning(false)}
-                  className="p-2 bg-red-600 rounded-full text-white"
-                >
-                  <X size={18} />
                 </button>
               </div>
             </div>
