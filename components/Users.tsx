@@ -58,10 +58,7 @@ export default function AdminUsersPage() {
   const isInRange = (dateStr: string) => {
     const d = new Date(dateStr);
 
-    // No filter → allow all
     if (!startDate && !endDate) return true;
-
-    // If only startDate selected → exact day match
     if (startDate && !endDate) {
       const start = new Date(startDate);
       return (
@@ -70,8 +67,6 @@ export default function AdminUsersPage() {
         d.getDate() === start.getDate()
       );
     }
-
-    // If only endDate selected → exact day match
     if (!startDate && endDate) {
       const end = new Date(endDate);
       return (
@@ -81,7 +76,6 @@ export default function AdminUsersPage() {
       );
     }
 
-    // If both selected → check range
     const start = new Date(startDate);
     const end = new Date(endDate);
     return d >= start && d <= end;
@@ -141,7 +135,6 @@ export default function AdminUsersPage() {
 
       {/* Filters */}
       <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
-        {/* Search */}
         <input
           type="text"
           placeholder="🔍 Roll No..."
@@ -150,7 +143,6 @@ export default function AdminUsersPage() {
           className="flex-shrink-0 w-44 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 snap-start"
         />
 
-        {/* Department filter */}
         <select
           value={department}
           onChange={(e) => setDepartment(e.target.value)}
@@ -164,7 +156,6 @@ export default function AdminUsersPage() {
           <option value="CIVIL">CIVIL</option>
         </select>
 
-        {/* Reason filter */}
         <select
           value={reason}
           onChange={(e) => setReason(e.target.value)}
@@ -178,7 +169,6 @@ export default function AdminUsersPage() {
           <option value="Others">Others</option>
         </select>
 
-        {/* Date filters */}
         <input
           type="date"
           value={startDate}
@@ -198,15 +188,28 @@ export default function AdminUsersPage() {
         <h2 className="font-semibold text-purple-700 mb-2 text-sm sm:text-base">
           QR Scanner
         </h2>
-        {!scanning ? (
-          <button
-            onClick={() => setScanning(true)}
-            className="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 gap-2 text-sm"
-          >
-            <QrCode size={20} /> Start Scanning
-          </button>
-        ) : (
-          <div className="relative">
+
+        {/* ✅ Toggle Button */}
+        <button
+          onClick={() => setScanning(!scanning)}
+          className={`flex items-center justify-center w-full px-4 py-2 rounded-lg text-white gap-2 text-sm ${
+            scanning ? "bg-red-600 hover:bg-red-700" : "bg-purple-600 hover:bg-purple-700"
+          }`}
+        >
+          {scanning ? (
+            <>
+              <X size={20} /> Stop Scanning
+            </>
+          ) : (
+            <>
+              <QrCode size={20} /> Start Scanning
+            </>
+          )}
+        </button>
+
+        {/* Show scanner only when active */}
+        {scanning && (
+          <div className="relative mt-3">
             <div className="w-full h-100 border rounded-lg overflow-hidden">
               <QrReader
                 delay={100}
@@ -216,14 +219,6 @@ export default function AdminUsersPage() {
                 }}
                 style={{ width: "100%", height: "100%" }}
               />
-            </div>
-            <div className="absolute top-2 right-2 flex gap-2">
-              <button
-                onClick={() => setScanning(false)}
-                className="p-2 bg-red-600 rounded-full text-white"
-              >
-                <X size={18} />
-              </button>
             </div>
           </div>
         )}
