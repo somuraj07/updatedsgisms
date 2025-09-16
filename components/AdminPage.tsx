@@ -143,10 +143,11 @@ export default function AdminPage() {
       >
         {open ? <X size={24} /> : <Menu size={24} />}
       </button>
-
       {/* Right-side menu */}
+      {/* Mobile (toggle menu) */}
       <div
         className={`fixed top-16 right-4 bg-purple-200 text-purple-900 shadow-lg flex flex-col py-4 px-4 gap-3 rounded-xl transform transition-transform duration-300 z-40
+        sm:hidden
         ${open ? "translate-x-0" : "translate-x-56"}`}
         style={{ minWidth: "180px" }}
       >
@@ -176,7 +177,31 @@ export default function AdminPage() {
           }}
           className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
         >
-          <CalendarCheck size={20} /> timetabel
+          <CalendarCheck size={20} /> Timetable
+        </button>
+      </div>
+
+      {/* Desktop nav (always visible) */}
+      <div className="hidden sm:flex fixed top-4 right-6 bg-purple-200 text-purple-900 shadow-lg py-2 px-4 gap-4 rounded-xl z-40">
+        <button
+          onClick={() => router.push("/users")}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
+        >
+          <Users size={20} /> Details
+        </button>
+
+        <button
+          onClick={() => router.push("/attendence")}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
+        >
+          <CalendarCheck size={20} /> Attendance
+        </button>
+
+        <button
+          onClick={() => router.push("/timetabel")}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-purple-300"
+        >
+          <CalendarCheck size={20} /> Timetable
         </button>
       </div>
 
