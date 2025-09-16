@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SigninPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +43,7 @@ export default function SigninPage() {
         router.push("/warden");
       } else if (data.role === "WATCHMAN") {
         router.push("/watchman");
-      }  else {
+      } else {
         toast.error("❌ Unknown role");
       }
 
@@ -67,6 +68,7 @@ export default function SigninPage() {
           Sign in to continue to your account
         </p>
 
+        {/* Email Field */}
         <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-purple-400 transition">
           <Mail className="w-5 h-5 text-purple-500 mr-2" />
           <input
@@ -80,10 +82,11 @@ export default function SigninPage() {
           />
         </div>
 
+        {/* Password Field with Show/Hide */}
         <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-purple-400 transition">
           <Lock className="w-5 h-5 text-purple-500 mr-2" />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
             value={form.password}
@@ -91,8 +94,16 @@ export default function SigninPage() {
             className="w-full p-2 outline-none text-gray-700 placeholder-gray-400"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="ml-2 text-purple-500 hover:text-purple-700 focus:outline-none"
+          >
+            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </button>
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}

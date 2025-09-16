@@ -3,7 +3,18 @@
 import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useAuth } from "@/app/context/AuthContext";
-import { User, Mail, Building2, CheckCircle } from "lucide-react";
+import {
+  User,
+  Mail,
+  Building2,
+  CheckCircle,
+  Menu,
+  X,
+  BookOpen,
+  AlertTriangle,
+  Home,
+  Calendar,
+} from "lucide-react";
 import HostelForm from "./HostelComplaint";
 import ViewTimetablePage from "@/app/time/page";
 
@@ -50,6 +61,7 @@ export default function StudentPage() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<Section>("attendance");
   const [showHostelForm, setShowHostelForm] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -106,38 +118,48 @@ export default function StudentPage() {
         ).toFixed(2)
       : "N/A";
 
-  return (
-    <div className="min-h-screen bg-purple-50 flex flex-col items-center p-4">
-      {/* Minimalistic Menu Bar */}
-      <div className=" top-4 z-10 flex justify-center gap-6 mb-6 bg-transparent p-2">
-        {["attendance", "complaints", "hostel", "timetable"].map((section) => {
-          const label =
-            section === "attendance"
-              ? "Attendance"
-              : section === "complaints"
-              ? "Complaints"
-              : section === "hostel"
-              ? "Hostel"
-              : "Timetable";
+  // Menu items with icons
+  const menuItems = [
+    { key: "attendance", label: "Attendance", icon: <BookOpen size={18} /> },
+    { key: "complaints", label: "Complaints", icon: <AlertTriangle size={18} /> },
+    { key: "hostel", label: "Hostel", icon: <Home size={18} /> },
+    { key: "timetable", label: "Timetable", icon: <Calendar size={18} /> },
+  ];
 
-          return (
-            <button
-              key={section}
-              className={`px-2 py-1 font-medium text-purple-700 hover:text-purple-900 transition-all ${
-                activeSection === section
-                  ? "border-b-2 border-purple-700"
-                  : "border-b-2 border-transparent"
-              }`}
-              onClick={() => setActiveSection(section as Section)}
-            >
-              {label}
-            </button>
-          );
-        })}
+  return (
+    <div className="min-h-screen bg-purple-50 flex flex-col items-center p-4 relative">
+      {/* Menu Button + Dropdown */}
+      <div className="w-full max-w-md flex justify-end mb-4 relative">
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="flex items-center gap-2 text-purple-700 hover:text-purple-900 transition-all"
+        >
+          {menuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+
+        {menuOpen && (
+          <div className="absolute right-0 mt-10 w-48 bg-white rounded-xl shadow-lg p-2 z-20">
+            {menuItems.map((item) => (
+              <button
+                key={item.key}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-purple-100 transition-all ${
+                  activeSection === item.key ? "bg-purple-200" : ""
+                }`}
+                onClick={() => {
+                  setActiveSection(item.key as Section);
+                  setMenuOpen(false);
+                }}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Student Info & QR */}
-      <div className="w-full max-w-md rounded-3xl p-6 space-y-6 bg-gradient-to-br from-purple-600 to-purple-200 shadow-xl">
+      <div className="w-full max-w-md rounded-3xl p-6 space-y-6 bg-gradient-to-br from-purple-600 to-purple-200 shadow-xl relative">
         <div className="space-y-3 text-white">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <User size={24} /> {student.name}
@@ -162,7 +184,6 @@ export default function StudentPage() {
 
         {/* Section Content */}
         <div className="mt-6 bg-white p-4 rounded-xl shadow-sm w-full">
-          {/* Attendance Section */}
           {activeSection === "attendance" && (
             <div>
               <h2 className="font-semibold text-purple-700 mb-2">Attendance</h2>
@@ -189,7 +210,6 @@ export default function StudentPage() {
             </div>
           )}
 
-          {/* Complaints Section */}
           {activeSection === "complaints" && (
             <div>
               <h2 className="font-semibold text-purple-700 mb-2">
@@ -220,12 +240,13 @@ export default function StudentPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-700 text-center text-sm">No complaints yet 🎉</p>
+                <p className="text-gray-700 text-center text-sm">
+                  No complaints yet 🎉
+                </p>
               )}
             </div>
           )}
 
-          {/* Hostel Section */}
           {activeSection === "hostel" && (
             <div>
               <div className="flex justify-center mb-4">
@@ -287,7 +308,6 @@ export default function StudentPage() {
             </div>
           )}
 
-          {/* Timetable Section */}
           {activeSection === "timetable" && (
             <div className="mt-4">
               <h2 className="font-semibold text-purple-700 mb-2 text-center">
