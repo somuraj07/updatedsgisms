@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Cell,
 } from "recharts";
 
 const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false });
@@ -75,7 +76,6 @@ export default function AdminUsersPage() {
         d.getDate() === end.getDate()
       );
     }
-
     const start = new Date(startDate);
     const end = new Date(endDate);
     return d >= start && d <= end;
@@ -126,6 +126,34 @@ export default function AdminUsersPage() {
     })
   );
 
+  const maxReasonCount = Math.max(
+    ...reasonChartData.map((d) => d.count),
+    1
+  );
+
+  // 🎨 Bright color palette for each reason (unchanged)
+  const reasonColors: Record<string, string> = {
+    Late: "#ffa5ab",
+    Beard: "#b5179e",
+    Shoes: "#90e0ef",
+    "Dress-Code": "#f72585",
+    Others: "#ff9100",
+  };
+
+  // ✅ Function to set color
+  const getReasonColor = (reason: string, count: number) => {
+    // 🔴 Override: if > 10 complaints → blood red
+    if (count > 10) return "#FF0000";
+
+    const baseColor = reasonColors[reason] || "#9c27b0"; // fallback purple
+    const intensity = Math.min(count / maxReasonCount, 1);
+    return intensity > 0.66
+      ? baseColor
+      : intensity > 0.33
+      ? `${baseColor}CC`
+      : `${baseColor}80`;
+  };
+
   return (
     <div className="p-4 space-y-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -142,7 +170,6 @@ export default function AdminUsersPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="flex-shrink-0 w-44 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 snap-start"
         />
-
         <select
           value={department}
           onChange={(e) => setDepartment(e.target.value)}
@@ -155,7 +182,6 @@ export default function AdminUsersPage() {
           <option value="MECH">MECH</option>
           <option value="CIVIL">CIVIL</option>
         </select>
-
         <select
           value={reason}
           onChange={(e) => setReason(e.target.value)}
@@ -168,7 +194,6 @@ export default function AdminUsersPage() {
           <option value="Dress-Code">Dress Code</option>
           <option value="Others">Others</option>
         </select>
-
         <input
           type="date"
           value={startDate}
@@ -183,33 +208,16 @@ export default function AdminUsersPage() {
         />
       </div>
 
-      {/* QR Scanner */}
-      <div className="rounded-xl border p-4 bg-white shadow-sm">
+      {/* QR Scanner (toggle on click) */}
+      <div
+        className="rounded-xl border p-4 bg-white shadow-sm cursor-pointer"
+        onClick={() => setScanning((prev) => !prev)}
+      >
         <h2 className="font-semibold text-purple-700 mb-2 text-sm sm:text-base">
-          QR Scanner
+          QR Scanner (Click to {scanning ? "Close" : "Open"})
         </h2>
-
-        {/* ✅ Toggle Button */}
-        <button
-          onClick={() => setScanning(!scanning)}
-          className={`flex items-center justify-center w-full px-4 py-2 rounded-lg text-white gap-2 text-sm ${
-            scanning ? "bg-red-600 hover:bg-red-700" : "bg-purple-600 hover:bg-purple-700"
-          }`}
-        >
-          {scanning ? (
-            <>
-              <X size={20} /> Stop Scanning
-            </>
-          ) : (
-            <>
-              <QrCode size={20} /> Start Scanning
-            </>
-          )}
-        </button>
-
-        {/* Show scanner only when active */}
-        {scanning && (
-          <div className="relative mt-3">
+        {scanning ? (
+          <div className="relative">
             <div className="w-full h-100 border rounded-lg overflow-hidden">
               <QrReader
                 delay={100}
@@ -220,6 +228,10 @@ export default function AdminUsersPage() {
                 style={{ width: "100%", height: "100%" }}
               />
             </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-purple-600 text-white gap-2 text-sm">
+            <QrCode size={20} /> Click to Start Scanning
           </div>
         )}
       </div>
@@ -250,7 +262,14 @@ export default function AdminUsersPage() {
               <XAxis dataKey="reason" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                {reasonChartData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={getReasonColor(entry.reason, entry.count)}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         ) : (
